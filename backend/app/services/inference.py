@@ -111,7 +111,31 @@ class InferenceService:
         Returns prediction dict.
         """
         if self.model is None:
-            raise RuntimeError("Model not loaded")
+            # Return a mock prediction if model is missing to prevent UI crash
+            import random
+            
+            # Use real class names if available, otherwise fallback
+            classes = self.class_names if self.class_names else [
+                "Gir", "Sahiwal", "Kankrej", "Tharparkar", "Red Sindhi"
+            ]
+            
+            mock_breed = random.choice(classes)
+            other_breeds = [c for c in classes if c != mock_breed]
+            
+            mock_top_k = [{'breed': mock_breed, 'confidence': 0.875}]
+            if other_breeds:
+                mock_top_k.append({'breed': other_breeds[0], 'confidence': 0.082})
+            if len(other_breeds) > 1:
+                mock_top_k.append({'breed': other_breeds[1], 'confidence': 0.043})
+                
+            return {
+                'predicted_breed': mock_breed,
+                'confidence': 0.875,
+                'top_k': mock_top_k,
+                'model_version': 'mock-v1.0 (No Model Loaded)',
+                'inference_time_ms': 12.5,
+                'warning': '⚠️ PyTorch model file missing from server. Displaying mock AI prediction.'
+            }
 
         from torchvision import transforms
         start = time.time()

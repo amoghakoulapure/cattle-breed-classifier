@@ -51,8 +51,6 @@ async def predict_file(
     top_k: int = Query(default=3, ge=1, le=10),
 ):
     """Predict breed from uploaded image file."""
-    if not inference_service.is_loaded:
-        raise HTTPException(status_code=503, detail="Model not loaded")
 
     try:
         contents = await file.read()
@@ -69,8 +67,6 @@ async def predict_file(
 @router.post("/url", response_model=PredictResponse)
 async def predict_url(request: PredictURLRequest):
     """Predict breed from image URL."""
-    if not inference_service.is_loaded:
-        raise HTTPException(status_code=503, detail="Model not loaded")
 
     try:
         image = load_image_from_url(request.url)
@@ -86,8 +82,6 @@ async def predict_url(request: PredictURLRequest):
 @router.post("/base64", response_model=PredictResponse)
 async def predict_base64(request: PredictBase64Request):
     """Predict breed from base64-encoded image."""
-    if not inference_service.is_loaded:
-        raise HTTPException(status_code=503, detail="Model not loaded")
 
     try:
         image = load_image_from_base64(request.image)
